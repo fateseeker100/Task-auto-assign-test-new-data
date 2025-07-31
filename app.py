@@ -383,9 +383,10 @@ def calculate_skill_match(worker_skills, task_skill_requirements):
     return total_score / num_relevant_skills if num_relevant_skills > 0 else 0.1
 
 def format_time(minutes):
-    """Convert simulation minutes to HH:MM format"""
-    hours_from_start = minutes // 60
-    mins_past_hour = minutes % 60
+    # Wrap within each day
+    minutes_in_day = minutes % 480
+    hours_from_start = minutes_in_day // 60
+    mins_past_hour = minutes_in_day % 60
     display_hour = 8 + hours_from_start
     return f"{int(display_hour):02d}:{int(mins_past_hour):02d}"
 
@@ -480,7 +481,7 @@ def assign_worker_to_task(worker, task, current_time_minutes, slot_duration_minu
     task.start_time_minutes = current_time_minutes
 
 # --- Core Scheduling Logic ---
-def assign_tasks(products_to_produce, available_workers_df, products_df, slot_duration_minutes=30):
+def assign_tasks(products_to_produce, available_workers_df, products_df, slot_duration_minutes=1):
     """Enhanced task assignment with dynamic worker transitions and interchangeable requirements"""
     try:
         # Initialize simulation data structures
@@ -521,8 +522,9 @@ def assign_tasks(products_to_produce, available_workers_df, products_df, slot_du
         # min_gap_minutes = 180
         # Main simulation loop
         while current_time_minutes < max_simulation_time:
-            current_day = current_time_minutes // (8 * 60) + 1
-            current_slot = (current_time_minutes % (8 * 60)) // slot_duration_minutes
+            minutes_per_day = 8 * 60  # 480 minutes
+            current_day = current_time_minutes // minutes_per_day + 1
+            current_slot = current_time_minutes % minutes_per_day
 
             # if current_time_minutes < min_gap_minutes:
             #     current_time_minutes = min_gap_minutes
@@ -732,7 +734,7 @@ def display_schedule_gantt(schedule_data, estimated_days):
                         # Create DataFrame for display
                         schedule_rows = []
                         for slot in range(max_slot + 1):
-                            time_str = format_time(slot * 30)
+                            time_str = format_time(slot)
                             row = {"TIME": time_str}
                             
                             # Add worker columns
@@ -1283,7 +1285,7 @@ def main():
                             products_to_produce=products_to_produce,
                             available_workers_df=available_workers_df,
                             products_df=current_products_df, # Pastikan menggunakan products_df terbaru
-                            slot_duration_minutes=30
+                            slot_duration_minutes=1
                         )
                         
                         if result:
