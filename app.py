@@ -480,7 +480,7 @@ def assign_worker_to_task(worker, task, current_time_minutes, slot_duration_minu
     task.start_time_minutes = current_time_minutes
 
 # --- Core Scheduling Logic ---
-def assign_tasks(products_to_produce, available_workers_df, products_df, slot_duration_minutes=30):
+def assign_tasks(products_to_produce, available_workers_df, products_df, slot_duration_minutes=1):
     """Enhanced task assignment with dynamic worker transitions and interchangeable requirements"""
     try:
         # Initialize simulation data structures
@@ -1283,7 +1283,7 @@ def main():
                             products_to_produce=products_to_produce,
                             available_workers_df=available_workers_df,
                             products_df=current_products_df, # Pastikan menggunakan products_df terbaru
-                            slot_duration_minutes=30
+                            slot_duration_minutes=1
                         )
                         
                         if result:
